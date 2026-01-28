@@ -1,7 +1,5 @@
 import './App.css'
 
-
-
 function App() {
   function generateHexCode() {
     return `#${Math.floor(Math.random() * 16777215)
@@ -12,7 +10,6 @@ function App() {
     const r = parseInt(hex.substr(1, 2), 16);
     const g = parseInt(hex.substr(3, 2), 16);
     const b = parseInt(hex.substr(5, 2), 16);
-
     const luminancia = (0.299 * r + 0.587 * g + 0.114 * b);
     return luminancia > 186 ? "#000" : "#fff";
 } 
@@ -43,7 +40,6 @@ document.addEventListener("keydown", (event) => {
     </div>
     </>
   )
- 
 }
 
 export default App
