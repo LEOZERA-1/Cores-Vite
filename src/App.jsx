@@ -1,80 +1,105 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
-function generateHexCode() {
-  return `#${Math.floor(Math.random() * 16777215)
-    .toString(16)
-    .padStart(6, "0")}`;
+function gerarCorAleatoria() {
+  const numero = Math.floor(Math.random() * 16777215);
+  return "#" + numero.toString(16).padStart(6, "0");
 }
 
-function getTextColor(hex) {
-  const r = parseInt(hex.substr(1, 2), 16);
-  const g = parseInt(hex.substr(3, 2), 16);
-  const b = parseInt(hex.substr(5, 2), 16);
+function corDoTexto(cor) {
+  const r = parseInt(cor.slice(1, 3), 16);
+  const g = parseInt(cor.slice(3, 5), 16);
+  const b = parseInt(cor.slice(5, 7), 16);
 
-  const luminancia = 0.299 * r + 0.587 * g + 0.114 * b;
-  return luminancia > 186 ? "#000" : "#fff";
+  const brilho = 0.299 * r + 0.587 * g + 0.114 * b;
+  return brilho > 186 ? "#000" : "#fff";
 }
 
 export default function App() {
+
   const [quadros, setQuadros] = useState([]);
 
   useEffect(() => {
-    const iniciais = Array.from({ length: 5 }, () => ({
-      cor: generateHexCode(),
-      bloqueado: false,
-    }));
-    setQuadros(iniciais);
+    const listaInicial = [];
 
-    function handleKeyDown(e) {
-      if (e.code === "Space") {
-        e.preventDefault();
-        gerarCores();
+    for (let i = 0; i < 5; i++) {
+      listaInicial.push({
+        cor: gerarCorAleatoria(),
+        bloqueado: false
+      });
+    }
+
+    setQuadros(listaInicial);
+  }, []);
+
+  useEffect(() => {
+
+    function aoPressionarTecla(evento) {
+      if (evento.code === "Space") {
+        evento.preventDefault();
+
+        setQuadros((quadrosAtuais) => {
+          return quadrosAtuais.map((quadro) => {
+
+            if (quadro.bloqueado) {
+              return quadro;
+            } else {
+              return {
+                cor: gerarCorAleatoria(),
+                bloqueado: false
+              };
+            }
+
+          });
+        });
       }
     }
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", aoPressionarTecla);
+
+    return () => {
+      document.removeEventListener("keydown", aoPressionarTecla);
+    };
+
   }, []);
 
-  function gerarCores() {
-    setQuadros((estadoAtual) =>
-      estadoAtual.map((quadro) =>
-        quadro.bloqueado
-          ? quadro
-          : { ...quadro, cor: generateHexCode() }
-      )
-    );
-  }
+  function alternarBloqueio(indice) {
+    setQuadros((quadrosAtuais) => {
+      return quadrosAtuais.map((quadro, i) => {
 
-  function toggleBloqueio(index) {
-    setQuadros((estadoAtual) =>
-      estadoAtual.map((quadro, i) =>
-        i === index
-          ? { ...quadro, bloqueado: !quadro.bloqueado }
-          : quadro
-      )
-    );
+        if (i === indice) {
+          return {
+            cor: quadro.cor,
+            bloqueado: !quadro.bloqueado
+          };
+        } else {
+          return quadro;
+        }
+
+      });
+    });
   }
 
   return (
     <div className="container">
+
       {quadros.map((quadro, index) => (
         <div
           key={index}
           className="quadro"
           style={{
             backgroundColor: quadro.cor,
-            color: getTextColor(quadro.cor),
+            color: corDoTexto(quadro.cor)
           }}
         >
           <span>{quadro.cor}</span>
 
-          <button onClick={() => toggleBloqueio(index)}>
+          <button onClick={() => alternarBloqueio(index)}>
             {quadro.bloqueado ? "🔒" : "🔓"}
           </button>
         </div>
       ))}
+
     </div>
   );
 }
