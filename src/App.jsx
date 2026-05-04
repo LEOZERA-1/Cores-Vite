@@ -58,7 +58,6 @@ function App() {
         gerarCor();
       }
     }
-
     document.addEventListener("keydown", aoPressionar);
     return () => document.removeEventListener("keydown", aoPressionar);
 
